@@ -49,7 +49,7 @@ async def ping(ctx):
 
 @client.command(aliases=['?','h'])
 async def help(ctx):
-    await ctx.send(f"Rin Rin ❤ Help version 10.23.19.2.0p\nrr.help -- Shows this message\nrr.rn (start number) (end number) -- Sends random number from start to end.\nrr.match (name1) (name2) -- Compatibilty with name1 and name2.\nrr.ping -- Shows my ping.\nrr.py -- Shows current discord.py version I'm using.")
+    await ctx.send(f"Rin Rin ❤ Help version 10.25.19.11.09a\nrr.help -- Shows this message\nrr.rn (start number) (end number) -- Sends random number from start to end.\nrr.match (name1) (name2) -- Compatibilty with name1 and name2.\nrr.ping -- Shows my ping.\nrr.py -- Shows current discord.py version I'm using.")
 
 @client.command()
 async def rn(ctx, number1: int, number2: int):
