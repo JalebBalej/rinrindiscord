@@ -11,6 +11,11 @@ client = commands.Bot(command_prefix='rr.')
 client.remove_command('help')
 
 @client.event
+async def on_connect():
+    await client.change_presence(activity=discord.Game("CONNECTED!"))
+    print('Rin Rin has established a connection to Discord!')
+
+@client.event
 async def on_ready():
     await client.change_presence(activity=discord.Game("こんいちわみなさん！"))
     print('Rin Rin is ready and running discord.py version ' + discord.__version__)
