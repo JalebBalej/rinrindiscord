@@ -2,7 +2,7 @@ import discord
 import random
 from discord.ext import commands
 
-BotOwnerID = '171409282439446528'
+BotOwnerID = 171409282439446528
 
 f = open("token", "r")
 TOKEN = f.read()
@@ -23,18 +23,16 @@ async def on_member_join(member):
 async def on_member_remove(member):
     print(f'{member} has left a server!')
 
-@client.event
-async def on_message(message):
-    if message.content.startswith("hi rin"):
-            channel = message.channel
-            await channel.send("hiii")
-    if message.content.startswith("i love you rin"):
-        if message.author.id == BotOwnerID:
-            channel = message.channel
-            await channel.send("i love you tooooo")
-        else:
-            channel = message.channel
-            await channel.send("well that sucks because i don't love you")
+@client.command()
+async def hi(ctx):
+    await ctx.send("hiiii")
+
+@client.command()
+async def iloveyou(ctx):
+    if ctx.message.author.id == BotOwnerID:
+        await ctx.send("i love you toooo :heart:")
+    else:
+        await ctx.send("well, i don't love you")
 
 @client.command()
 async def py(ctx):
