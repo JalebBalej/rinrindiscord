@@ -1,10 +1,7 @@
 import discord
 import random
-import sqlite3
-from sqlite3 import Error
 from discord.ext import commands
 
-database = r"G:\stuff\python shit\rin rin bot\rinrinbotsqlite.db"
 BotOwnerID = '171409282439446528'
 
 f = open("token", "r")
@@ -38,18 +35,6 @@ async def on_message(message):
         else:
             channel = message.channel
             await channel.send("well that sucks because i don't love you")
-
-
-#@client.command()
-#async def testlocalization(ctx):
-#    def create_connection(database):
-#        conn = sqlite3.connect(database)
-
-#Work In Progress Command (I don't have a clue how to do this), please help, I want to make a localization system
-#This is the command to switch the language in the server, but I don't know how to do anything at all here
-#@client.command()
-#async def lang(ctx, language: str):
-#    if language == ['english','testjapanese']:
 
 @client.command()
 async def py(ctx):
