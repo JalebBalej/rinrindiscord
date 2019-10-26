@@ -35,19 +35,49 @@ async def on_command_error(ctx, error):
     log.write(f"Error: {error}")
     log.close()
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send("Command not found! Check to see if it was a typo!")
+        member = ctx.message.author.id
+        if os.path.exists(f"memlangs\{member}"):
+            languageCheck = open(f"memlangs\{member}", "r")
+            memlanguage = languageCheck.read()
+            if memlanguage == "en":
+                languageCheck.close()
+                await ctx.send("Command not found! Check to see if it was a typo!")
+            else:
+                languageCheck.close()
+                await ctx.send("コマンドが見つかりません！タイプミスかどうかを確認してください！")
+        else:
+            languageCreate = open(f"memlangs\{member}", "w+")
+            languageCreate.write("en")
+            languageCreate.close()
+            await ctx.send("Command not found! Check to see if it was a typo!")
     else:
-        await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
+        member = ctx.message.author.id
+        if os.path.exists(f"memlangs\{member}"):
+            languageCheck = open(f"memlangs\{member}", "r")
+            memlanguage = languageCheck.read()
+            if memlanguage == "en":
+                await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
+            else:
+                await ctx.send("おっと！エラーが発生しました！ノブくんのログをチェックしてください！")
+        else:
+            languageCreate = open(f"memlangs\{member}", "w+")
+            languageCreate.write("en")
+            languageCreate.close()
+            await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
+
+
 
 @client.command(aliases=['?','h'])
 async def help(ctx):
-    embed = discord.Embed(title="Rin Rin ❤ Help", description="version 10.25.19.11.2p", color=8993300)
+    embed = discord.Embed(title="Rin Rin ❤ Help", description="version 10.26.19.7.5a", color=2367979)
     embed.add_field(name="rr.help", value="Shows this message", inline=False)
     embed.add_field(name="rr.rn (startnumber)(endnumber)", value="Gets a random number from start to end.", inline=False)
     embed.add_field(name="rr.match (name) (partner)", value="Calculates compatibility with name and partner.", inline=False)
     embed.add_field(name="rr.ping", value="Shows my ping!", inline=False)
     embed.add_field(name="rr.py", value="Shows current discord.py version I'm running.")
     embed.add_field(name="rr.info", value="Shows bot info!", inline=False)
+    embed.add_field(name="rr.hi", value="Say hi!", inline=False)
+    embed.add_field(name="rr.iloveyou", value="Say I love you, and get rejected.", inline=False)
     await ctx.send(embed=embed)
 
 @client.command()
