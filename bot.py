@@ -39,6 +39,27 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
 
+@client.command(aliases=['?','h'])
+async def help(ctx):
+    embed = discord.Embed(title="Rin Rin ❤ Help", description="version 10.25.19.11.2p", color=8993300)
+    embed.add_field(name="rr.help", value="Shows this message", inline=False)
+    embed.add_field(name="rr.rn (startnumber)(endnumber)", value="Gets a random number from start to end.", inline=False)
+    embed.add_field(name="rr.match (name) (partner)", value="Calculates compatibility with name and partner.", inline=False)
+    embed.add_field(name="rr.ping", value="Shows my ping!", inline=False)
+    embed.add_field(name="rr.py", value="Shows current discord.py version I'm running.")
+    embed.add_field(name="rr.info", value="Shows bot info!", inline=False)
+    await ctx.send(embed=embed)
+
+@client.command()
+async def info(ctx):
+    embed = discord.Embed(title="Rin Rin ❤ Info", description="About me!", color=8993300)
+    embed.add_field(name="Bot Author:", value="Nobuyaki#4974", inline=False)
+    embed.add_field(name="Bot Version:",value="10.25.19.11.2p", inline=False)
+    embed.add_field(name="Github Link:", value="https://github.com/liberation4you/rinrindiscord", inline=False)
+    embed.set_footer(text="Rin Rin ❤",icon_url="https://avatars1.githubusercontent.com/u/53136821?s=400&u=7877010f24ed4d436db5f1c6aa559fde428dcb31&v=4")
+    await ctx.send(embed=embed)
+
+
 @client.command()
 async def hi(ctx):
     await ctx.send("hiiii")
@@ -90,10 +111,6 @@ async def py(ctx):
 @client.command()
 async def ping(ctx):
     await ctx.send(f'Bot latency is {round(client.latency * 1000)}ms!')
-
-@client.command(aliases=['?','h'])
-async def help(ctx):
-    await ctx.send(f"Rin Rin ❤ Help version 10.25.19.6p\nrr.help -- Shows this message\nrr.rn (start number) (end number) -- Sends random number from start to end.\nrr.match (name1) (name2) -- Compatibilty with name1 and name2.\nrr.ping -- Shows my ping.\nrr.py -- Shows current discord.py version I'm using.")
 
 @client.command()
 async def rn(ctx, number1: int, number2: int):
