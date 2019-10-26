@@ -1,5 +1,6 @@
 import discord
 import random
+import os
 from discord.ext import commands
 
 BotOwnerID = 171409282439446528
@@ -28,14 +29,57 @@ async def on_member_join(member):
 async def on_member_remove(member):
     print(f'{member} has left a server!')
 
+@client.event
+async def on_command_error(ctx, error):
+    log = open("log", "w+")
+    log.write(f"Error: {error}")
+    log.close()
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.send("Command not found! Check to see if it was a typo!")
+    else:
+        await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
+
 @client.command()
 async def hi(ctx):
     await ctx.send("hiiii")
 
 @client.command()
+async def lang(ctx, language: str = None):
+    memberID = ctx.message.author.id
+    if language == "en":
+        file = open(f"memlangs\{memberID}", "w+")
+        file.write("en")
+        await ctx.send(f"Changed your language to **English**!")
+        file.close()
+    else:
+        if language == "jp":
+            file = open(f"memlangs\{memberID}", "w+")
+            file.write("jp")
+            await ctx.send(f"Changed your language to **Japanese**!")
+            file.close()
+        else:
+            if language is None:
+                if os.path.exists(f"memlangs\{memberID}"):
+                    file = open(f"memlangs\{memberID}", "r")
+                    currentlang = file.read()
+                    await ctx.send(f"Your current language is {currentlang}!")
+                    file.close()
+                else:
+                    file = open(f"memlangs\{memberID}", "w+")
+                    print(f"Rin Rin TempLog> {memberID} doesn't have lang file! Creating one.")
+                    await ctx.send(f"You don't have a lang file so I made you one! Default language is **English**.\nType rr.lang again to see language.")
+                    file.write("en")
+                    file.close()
+            else:
+                await ctx.send("Incorrect language! Type 'en' for English or 'jp' for Japanese.")
+
+
+
+@client.command()
 async def iloveyou(ctx):
-    if ctx.message.author.id == BotOwnerID:
-        await ctx.send("i love you toooo :heart:")
+    member = ctx.message.author.id
+    if member == BotOwnerID:
+        await ctx.send("i love you tooooo :heart: :heart:")
     else:
         await ctx.send("well, i don't love you")
 
