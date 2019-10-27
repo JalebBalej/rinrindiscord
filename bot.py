@@ -43,42 +43,83 @@ async def on_command_error(ctx, error):
                 languageCheck.close()
                 await ctx.send("Command not found! Check to see if it was a typo!")
             else:
-                languageCheck.close()
-                await ctx.send("コマンドが見つかりません！タイプミスかどうかを確認してください！")
+                if memlanguage == "jp":
+                    languageCheck.close()
+                    await ctx.send("コマンドが見つかりません！タイプミスかどうかを確認してください！")
+                else:
+                    if memlanguage == "ru":
+                        languageCheck.close()
+                        await ctx.send("Команда не найдена! Проверьте, может это опечатка!")
+                    else:
+                        languageCheck.close()
+                        await ctx.send("Komanda nerasta! Patikrinkite ar tai buvo rašybos klaida!")
+
         else:
             languageCreate = open(f"memlangs\{member}", "w+")
             languageCreate.write("en")
             languageCreate.close()
             await ctx.send("Command not found! Check to see if it was a typo!")
     else:
-        member = ctx.message.author.id
-        if os.path.exists(f"memlangs\{member}"):
-            languageCheck = open(f"memlangs\{member}", "r")
-            memlanguage = languageCheck.read()
-            if memlanguage == "en":
-                await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
-            else:
-                await ctx.send("おっと！エラーが発生しました！ノブくんのログをチェックしてください！")
-        else:
-            languageCreate = open(f"memlangs\{member}", "w+")
-            languageCreate.write("en")
-            languageCreate.close()
             await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
 
-
+@client.command()
+async def credits(ctx):
+    embed = discord.Embed(title="Rin Rin ❤ Credits", color=2367979)
+    embed.add_field(name="Bot Developer", value="Nobuyaki#4974")
+    embed.add_field(name="Russian Translation", value="Pineapple_Cookie (美波🌊 fan)#0373", inline=False)
+    embed.add_field(name="Lithuanian Translation", value="uwu#1337 and Nexurent#6458", inline=False)
+    embed.add_field(name="Lithuanian Translation Quality Checker", value="Nexurent#6458", inline=False)
+    await ctx.send(embed=embed)
 
 @client.command(aliases=['?','h'])
 async def help(ctx):
-    embed = discord.Embed(title="Rin Rin ❤ Help", description="version 10.26.19.7.5a", color=2367979)
-    embed.add_field(name="rr.help", value="Shows this message", inline=False)
-    embed.add_field(name="rr.rn (startnumber)(endnumber)", value="Gets a random number from start to end.", inline=False)
-    embed.add_field(name="rr.match (name) (partner)", value="Calculates compatibility with name and partner.", inline=False)
-    embed.add_field(name="rr.ping", value="Shows my ping!", inline=False)
-    embed.add_field(name="rr.py", value="Shows current discord.py version I'm running.")
-    embed.add_field(name="rr.info", value="Shows bot info!", inline=False)
-    embed.add_field(name="rr.hi", value="Say hi!", inline=False)
-    embed.add_field(name="rr.iloveyou", value="Say I love you, and get rejected.", inline=False)
-    await ctx.send(embed=embed)
+    member = ctx.message.author.id
+    if os.path.exists(f"memlangs\{member}"):
+        languageCheck = open(f"memlangs\{member}", "r")
+        userlang = languageCheck.read()
+        if userlang == "en":
+            languageCheck.close()
+            embed = discord.Embed(title="Rin Rin ❤ Help", description="v 10.27.19.10a", color=2367979)
+            embed.add_field(name="rr.help", value="Shows this message", inline=False)
+            embed.add_field(name="rr.rn (startnumber)(endnumber)", value="Gets a random number from start to end.", inline=False)
+            embed.add_field(name="rr.match (name) (partner)", value="Calculates compatibility with name and partner.", inline=False)
+            embed.add_field(name="rr.ping", value="Shows my ping!", inline=False)
+            embed.add_field(name="rr.info", value="Shows bot info!", inline=False)
+            embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
+            await ctx.send(embed=embed)
+        else:
+            if userlang == "jp":
+                languageCheck.close()
+                embed = discord.Embed(title="Rin Rin❤ヘルプ", description="v 10.27.19.10a", color=2367979)
+                embed.add_field(name="rr.help", value="このメッセージを表示します。", inline=False)
+                embed.add_field(name="rr.rn (開始番号) (終了番号)", value="開始から終了まで乱数を取得します。", inline=False)
+                embed.add_field(name="rr.match (名前) (パートナー)", value="名前とパートナーとの互換性を計算します。", inline=False)
+                embed.add_field(name="rr.ping", value="pingを表示します！", inline=False)
+                embed.add_field(name="rr.info", value="ボット情報を表示します！", inline=False)
+                embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
+                await ctx.send(embed=embed)
+            else:
+                if userlang == "ru":
+                    languageCheck.close()
+                    embed = discord.Embed(title="Rin Rin ❤ Помощь", description="v 10.27.19.10a", color=2367979)
+                    embed.add_field(name="rr.help", value="Показать это сообщение.", inline=False)
+                    embed.add_field(name="rr.rn (старт) (стоп)", value="Получить случайное число от старт до стоп.", inline=False)
+                    embed.add_field(name="rr.match (имя) (партнер)", value="Посчитать совместимость имени и партнера.", inline=False)
+                    embed.add_field(name="rr.ping", value="Показать мой пинг!", inline=False)
+                    embed.add_field(name="rr.info", value="Показать информацию о боте!", inline=False)
+                    embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
+                    await ctx.send(embed=embed)
+                else:
+                    if userlang == "lt":
+                        languageCheck.close()
+                        embed = discord.Embed(title="Rin Rin❤ Pagalba", description="v 10.27.19.10a", color=2367979)
+                        embed.add_field(name="rr.help", value="Parodo šitą žinutę", inline=False)
+                        embed.add_field(name="rr.rn (pradinisnumeris) (paskutinisnumeris)", value="Parodo generuota numerį nuo pradinio numerio iki paskutinio.", inline=False)
+                        embed.add_field(name="rr.match (vardas) (partneris)", value="Suskaičiuoja kiek vardas ir partneris tinka.", inline=False)
+                        embed.add_field(name="rr.ping", value="Parodo mano pingą!", inline=False)
+                        embed.add_field(name="rr.info", value="Parodo boto informaciją!", inline=False)
+                        embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
+                        await ctx.send(embed=embed)
 
 @client.command()
 async def info(ctx):
@@ -88,11 +129,6 @@ async def info(ctx):
     embed.add_field(name="Github Link:", value="https://github.com/liberation4you/rinrindiscord", inline=False)
     embed.set_footer(text="Rin Rin ❤",icon_url="https://avatars1.githubusercontent.com/u/53136821?s=400&u=7877010f24ed4d436db5f1c6aa559fde428dcb31&v=4")
     await ctx.send(embed=embed)
-
-
-@client.command()
-async def hi(ctx):
-    await ctx.send("hiiii")
 
 @client.command()
 async def lang(ctx, language: str = None):
@@ -106,37 +142,47 @@ async def lang(ctx, language: str = None):
         if language == "jp":
             file = open(f"memlangs\{memberID}", "w+")
             file.write("jp")
-            await ctx.send(f"Changed your language to **Japanese**!")
+            await ctx.send(f"言語を**日本語**に変更しました！")
             file.close()
         else:
-            if language is None:
-                if os.path.exists(f"memlangs\{memberID}"):
-                    file = open(f"memlangs\{memberID}", "r")
-                    currentlang = file.read()
-                    await ctx.send(f"Your current language is {currentlang}!")
-                    file.close()
-                else:
-                    file = open(f"memlangs\{memberID}", "w+")
-                    print(f"Rin Rin TempLog> {memberID} doesn't have lang file! Creating one.")
-                    await ctx.send(f"You don't have a lang file so I made you one! Default language is **English**.\nType rr.lang again to see language.")
-                    file.write("en")
-                    file.close()
+            if language == "ru":
+                file = open(f"memlangs\{memberID}", "w+")
+                file.write("ru")
+                await ctx.send(f"Ваш язык изменён на **Русский**!")
+                file.close()
             else:
-                await ctx.send("Incorrect language! Type 'en' for English or 'jp' for Japanese.")
-
-
-
-@client.command()
-async def iloveyou(ctx):
-    member = ctx.message.author.id
-    if member == BotOwnerID:
-        await ctx.send("i love you tooooo :heart: :heart:")
-    else:
-        await ctx.send("well, i don't love you")
-
-@client.command()
-async def py(ctx):
-    await ctx.send(f"I'm currently using discord.py version {discord.__version__}! :slight_smile:")
+                if language == "lt":
+                    file = open(f"memlangs\{memberID}", "w+")
+                    file.write("lt")
+                    await ctx.send(f"Kalba pakeista į **Lietuvių**!")
+                else:
+                    if language is None:
+                        if os.path.exists(f"memlangs\{memberID}"):
+                            file = open(f"memlangs\{memberID}", "r")
+                            currentlang = file.read()
+                            if currentlang == "en":
+                                await ctx.send("Your current language is **English**!")
+                                file.close()
+                            else:
+                                if currentlang == "jp":
+                                    await ctx.send("現在の言語は**日本語**です！")
+                                    file.close()
+                                else:
+                                    if currentlang == "ru":
+                                        await ctx.send("Ваш текущий язык **Русский**!")
+                                        file.close()
+                                    else:
+                                        if currentlang == "lt":
+                                            await ctx.send("Tavo dabartinė kalba yra **Lietuvių**!")
+                                            file.close()
+                        else:
+                            file = open(f"memlangs\{memberID}", "w+")
+                            print(f"Rin Rin TempLog> {memberID} doesn't have lang file! Creating one.")
+                            await ctx.send(f"You don't have a lang file so I made you one! Default language is **English**.\nType rr.lang again to see language.")
+                            file.write("en")
+                            file.close()
+                    else:
+                        await ctx.send("Incorrect language! Type 'en' for English, 'jp' for Japanese, 'ru' for Russian, and 'lt' for Lithuanian.")
 
 @client.command()
 async def ping(ctx):
@@ -150,7 +196,7 @@ async def rn(ctx, number1: int, number2: int):
 @rn.error
 async def rn_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("You need to enter two numbers when entering that command!")
+        await ctx.send("You need to enter two numbers!")
 
 @client.command()
 async def match(ctx, name: str, partner: str):
