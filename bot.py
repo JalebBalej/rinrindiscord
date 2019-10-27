@@ -1,8 +1,10 @@
 import discord
 import random
 import os
+from datetime import datetime
 from discord.ext import commands
 
+BotVersion = "v 10.27.19.7p"
 BotOwnerID = 171409282439446528
 
 f = open("token", "r")
@@ -31,8 +33,10 @@ async def on_member_remove(member):
 
 @client.event
 async def on_command_error(ctx, error):
-    log = open("log", "w+")
-    log.write(f"Error: {error}")
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
+    log = open("log", "a")
+    log.write(f"\nError: {time} | MemberID: {ctx.message.author.id} caused: {error}")
     log.close()
     if isinstance(error, commands.CommandNotFound):
         member = ctx.message.author.id
@@ -43,21 +47,23 @@ async def on_command_error(ctx, error):
                 languageCheck.close()
                 await ctx.send("Command not found! Check to see if it was a typo!")
             else:
-                if memlanguage == "jp":
+                if memlanguage == "ru":
                     languageCheck.close()
-                    await ctx.send("コマンドが見つかりません！タイプミスかどうかを確認してください！")
+                    await ctx.send("Команда не найдена! Проверьте, может это опечатка!")
                 else:
-                    if memlanguage == "ru":
-                        languageCheck.close()
-                        await ctx.send("Команда не найдена! Проверьте, может это опечатка!")
-                    else:
-                        languageCheck.close()
-                        await ctx.send("Komanda nerasta! Patikrinkite ar tai buvo rašybos klaida!")
+                    languageCheck.close()
+                    await ctx.send("Komanda nerasta! Patikrinkite ar tai buvo rašybos klaida!")
 
         else:
             languageCreate = open(f"memlangs\{member}", "w+")
             languageCreate.write("en")
             languageCreate.close()
+            now = datetime.now()
+            time = now.strftime("%H:%M:%S")
+            log = open("log", "a")
+            log.write(f"\nLog: {time} | MemberID: {ctx.message.author.id}: Member didn't have a language file, created one via NotACommand Error!")
+            log.close()
+            print(f"Rin Rin TempLog/CommandNotFound> {member} didn't have a lang file! Creating one.")
             await ctx.send("Command not found! Check to see if it was a typo!")
     else:
             await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
@@ -79,53 +85,65 @@ async def help(ctx):
         userlang = languageCheck.read()
         if userlang == "en":
             languageCheck.close()
-            embed = discord.Embed(title="Rin Rin ❤ Help", description="v 10.27.19.10a", color=2367979)
+            embed = discord.Embed(title="Rin Rin ❤ Help", description=BotVersion, color=2367979)
             embed.add_field(name="rr.help", value="Shows this message", inline=False)
             embed.add_field(name="rr.rn (startnumber)(endnumber)", value="Gets a random number from start to end.", inline=False)
             embed.add_field(name="rr.match (name) (partner)", value="Calculates compatibility with name and partner.", inline=False)
             embed.add_field(name="rr.ping", value="Shows my ping!", inline=False)
             embed.add_field(name="rr.info", value="Shows bot info!", inline=False)
+            embed.add_field(name="rr.lang (en/lt/ru)", value="Changes bot's language!")
             embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
             await ctx.send(embed=embed)
         else:
-            if userlang == "jp":
+            if userlang == "ru":
                 languageCheck.close()
-                embed = discord.Embed(title="Rin Rin❤ヘルプ", description="v 10.27.19.10a", color=2367979)
-                embed.add_field(name="rr.help", value="このメッセージを表示します。", inline=False)
-                embed.add_field(name="rr.rn (開始番号) (終了番号)", value="開始から終了まで乱数を取得します。", inline=False)
-                embed.add_field(name="rr.match (名前) (パートナー)", value="名前とパートナーとの互換性を計算します。", inline=False)
-                embed.add_field(name="rr.ping", value="pingを表示します！", inline=False)
-                embed.add_field(name="rr.info", value="ボット情報を表示します！", inline=False)
+                embed = discord.Embed(title="Rin Rin ❤ Помощь", description=BotVersion, color=2367979)
+                embed.add_field(name="rr.help", value="Показать это сообщение.", inline=False)
+                embed.add_field(name="rr.rn (старт) (стоп)", value="Получить случайное число от старт до стоп.", inline=False)
+                embed.add_field(name="rr.match (имя) (партнер)", value="Посчитать совместимость имени и партнера.", inline=False)
+                embed.add_field(name="rr.ping", value="Показать мой пинг!", inline=False)
+                embed.add_field(name="rr.info", value="Показать информацию о боте!", inline=False)
+                embed.add_field(name="rr.lang (en/lt/ru)", value="Changes bot's language!")
                 embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
                 await ctx.send(embed=embed)
             else:
-                if userlang == "ru":
+                if userlang == "lt":
                     languageCheck.close()
-                    embed = discord.Embed(title="Rin Rin ❤ Помощь", description="v 10.27.19.10a", color=2367979)
-                    embed.add_field(name="rr.help", value="Показать это сообщение.", inline=False)
-                    embed.add_field(name="rr.rn (старт) (стоп)", value="Получить случайное число от старт до стоп.", inline=False)
-                    embed.add_field(name="rr.match (имя) (партнер)", value="Посчитать совместимость имени и партнера.", inline=False)
-                    embed.add_field(name="rr.ping", value="Показать мой пинг!", inline=False)
-                    embed.add_field(name="rr.info", value="Показать информацию о боте!", inline=False)
+                    embed = discord.Embed(title="Rin Rin❤ Pagalba", description=BotVersion, color=2367979)
+                    embed.add_field(name="rr.help", value="Parodo šitą žinutę", inline=False)
+                    embed.add_field(name="rr.rn (pradinisnumeris) (paskutinisnumeris)", value="Parodo generuota numerį nuo pradinio numerio iki paskutinio.", inline=False)
+                    embed.add_field(name="rr.match (vardas) (partneris)", value="Suskaičiuoja kiek vardas ir partneris tinka.", inline=False)
+                    embed.add_field(name="rr.ping", value="Parodo mano pingą!", inline=False)
+                    embed.add_field(name="rr.info", value="Parodo boto informaciją!", inline=False)
+                    embed.add_field(name="rr.lang (en/lt/ru)", value="Changes bot's language!")
                     embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
                     await ctx.send(embed=embed)
-                else:
-                    if userlang == "lt":
-                        languageCheck.close()
-                        embed = discord.Embed(title="Rin Rin❤ Pagalba", description="v 10.27.19.10a", color=2367979)
-                        embed.add_field(name="rr.help", value="Parodo šitą žinutę", inline=False)
-                        embed.add_field(name="rr.rn (pradinisnumeris) (paskutinisnumeris)", value="Parodo generuota numerį nuo pradinio numerio iki paskutinio.", inline=False)
-                        embed.add_field(name="rr.match (vardas) (partneris)", value="Suskaičiuoja kiek vardas ir partneris tinka.", inline=False)
-                        embed.add_field(name="rr.ping", value="Parodo mano pingą!", inline=False)
-                        embed.add_field(name="rr.info", value="Parodo boto informaciją!", inline=False)
-                        embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
-                        await ctx.send(embed=embed)
+    else:
+        languageCreate = open(f"memlangs\{member}", "w+")
+        languageCreate.write("en")
+        languageCreate.close()
+        now = datetime.now()
+        time = now.strftime("%H:%M:%S")
+        log = open("log", "a")
+        log.write(
+            f"\nLog: {time} | MemberID: {ctx.message.author.id}: Member didn't have a language file, created one via Help Command!")
+        log.close()
+        print(f"Rin Rin TempLog/CommandNotFound> {member} didn't have a lang file! Creating one.")
+        embed = discord.Embed(title="Rin Rin ❤ Help", description=BotVersion, color=2367979)
+        embed.add_field(name="rr.help", value="Shows this message", inline=False)
+        embed.add_field(name="rr.rn (startnumber)(endnumber)", value="Gets a random number from start to end.", inline=False)
+        embed.add_field(name="rr.match (name) (partner)", value="Calculates compatibility with name and partner.", inline=False)
+        embed.add_field(name="rr.ping", value="Shows my ping!", inline=False)
+        embed.add_field(name="rr.info", value="Shows bot info!", inline=False)
+        embed.add_field(name="rr.lang (en/lt/ru)", value="Changes bot's language!")
+        embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
+        await ctx.send(embed=embed)
 
 @client.command()
 async def info(ctx):
     embed = discord.Embed(title="Rin Rin ❤ Info", description="About me!", color=8993300)
     embed.add_field(name="Bot Author:", value="Nobuyaki#4974", inline=False)
-    embed.add_field(name="Bot Version:",value="10.25.19.11.2p", inline=False)
+    embed.add_field(name="Bot Version:",value=BotVersion, inline=False)
     embed.add_field(name="Github Link:", value="https://github.com/liberation4you/rinrindiscord", inline=False)
     embed.set_footer(text="Rin Rin ❤",icon_url="https://avatars1.githubusercontent.com/u/53136821?s=400&u=7877010f24ed4d436db5f1c6aa559fde428dcb31&v=4")
     await ctx.send(embed=embed)
@@ -139,50 +157,46 @@ async def lang(ctx, language: str = None):
         await ctx.send(f"Changed your language to **English**!")
         file.close()
     else:
-        if language == "jp":
+        if language == "ru":
             file = open(f"memlangs\{memberID}", "w+")
-            file.write("jp")
-            await ctx.send(f"言語を**日本語**に変更しました！")
+            file.write("ru")
+            await ctx.send(f"Ваш язык изменён на **Русский**!")
             file.close()
         else:
-            if language == "ru":
+            if language == "lt":
                 file = open(f"memlangs\{memberID}", "w+")
-                file.write("ru")
-                await ctx.send(f"Ваш язык изменён на **Русский**!")
-                file.close()
+                file.write("lt")
+                await ctx.send(f"Kalba pakeista į **Lietuvių**!")
             else:
-                if language == "lt":
-                    file = open(f"memlangs\{memberID}", "w+")
-                    file.write("lt")
-                    await ctx.send(f"Kalba pakeista į **Lietuvių**!")
-                else:
-                    if language is None:
-                        if os.path.exists(f"memlangs\{memberID}"):
-                            file = open(f"memlangs\{memberID}", "r")
-                            currentlang = file.read()
-                            if currentlang == "en":
-                                await ctx.send("Your current language is **English**!")
+                if language is None:
+                    if os.path.exists(f"memlangs\{memberID}"):
+                        file = open(f"memlangs\{memberID}", "r")
+                        currentlang = file.read()
+                        if currentlang == "en":
+                            await ctx.send("Your current language is **English**!")
+                            file.close()
+                        else:
+                            if currentlang == "ru":
+                                await ctx.send("Ваш текущий язык **Русский**!")
                                 file.close()
                             else:
-                                if currentlang == "jp":
-                                    await ctx.send("現在の言語は**日本語**です！")
+                                if currentlang == "lt":
+                                    await ctx.send("Tavo dabartinė kalba yra **Lietuvių**!")
                                     file.close()
-                                else:
-                                    if currentlang == "ru":
-                                        await ctx.send("Ваш текущий язык **Русский**!")
-                                        file.close()
-                                    else:
-                                        if currentlang == "lt":
-                                            await ctx.send("Tavo dabartinė kalba yra **Lietuvių**!")
-                                            file.close()
-                        else:
-                            file = open(f"memlangs\{memberID}", "w+")
-                            print(f"Rin Rin TempLog> {memberID} doesn't have lang file! Creating one.")
-                            await ctx.send(f"You don't have a lang file so I made you one! Default language is **English**.\nType rr.lang again to see language.")
-                            file.write("en")
-                            file.close()
                     else:
-                        await ctx.send("Incorrect language! Type 'en' for English, 'jp' for Japanese, 'ru' for Russian, and 'lt' for Lithuanian.")
+                        languageCreate = open(f"memlangs\{member}", "w+")
+                        languageCreate.write("en")
+                        languageCreate.close()
+                        now = datetime.now()
+                        time = now.strftime("%H:%M:%S")
+                        log = open("log", "a")
+                        log.write(f"\nLog: {time} | MemberID: {ctx.message.author.id}: Member didn't have a language file, created one via Language Command!")
+                        log.close()
+                        print(f"Rin Rin TempLog/FileNotFound> {member} didn't have a lang file! Creating one.")
+                        await ctx.send(f"You don't have a lang file so I made you one! Default language is **English**.\nType rr.lang again to see language.")
+
+                else:
+                    await ctx.send("Incorrect language! Type 'en' for English, 'ru' for Russian, and 'lt' for Lithuanian.")
 
 @client.command()
 async def ping(ctx):
