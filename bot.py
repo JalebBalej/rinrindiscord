@@ -1,11 +1,43 @@
-import discord
 import random
-import os
-from datetime import datetime
+
+import discord
 from discord.ext import commands
 
-BotVersion = "v 10.27.19.7p"
+from datetime import datetime
+
+import sqlite3 as sql
+from sqlite3 import Error
+
+from cogs.locale import *
+
+
+
+BotVersion = "v 10.31.19.17.4"
 BotOwnerID = 171409282439446528
+
+conn = sql.connect("Database.db")
+cur = conn.cursor()
+cur.execute(""" CREATE TABLE IF NOT EXISTS users (
+                    u_id INTEGER PRIMARY KEY,
+                    name TEXT,
+                    id INTEGER,
+                    lang TEXT DEFAULT 'en'
+                ); """)
+cur.execute(""" CREATE TABLE IF NOT EXISTS logs (
+                    u_id INTEGER PRIMARY KEY,
+                    name TEXT,
+                    id INTEGER,
+                    cause TEXT,
+                    time TEXT,
+                    unix_time INTEGER
+                ); """)
+cur.close()
+
+all_languages = {
+    "english": "en",
+    "russian": "ru",
+    "lithuanian": "lt"
+}
 
 f = open("token", "r")
 TOKEN = f.read()
@@ -15,188 +47,130 @@ client.remove_command('help')
 
 @client.event
 async def on_connect():
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
     await client.change_presence(activity=discord.Game("CONNECTED!"))
-    print('Rin Rin has established a connection to Discord!')
+    print(f'Time: {time} | Rin Rin has established a connection to Discord!')
 
 @client.event
 async def on_ready():
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
     await client.change_presence(activity=discord.Game("こんいちわみなさん！"))
-    print('Rin Rin is ready and running discord.py version ' + discord.__version__)
+    print(f'Time: {time} | Rin Rin is ready and running discord.py version ' + discord.__version__)
 
 @client.event
 async def on_member_join(member):
-    print(f'{member} has joined a server!')
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
+    print(f'Time: {time} | {member} has joined a server!')
 
 @client.event
 async def on_member_remove(member):
-    print(f'{member} has left a server!')
+    now = datetime.now()
+    time = now.strftime("%H:%M:%S")
+    print(f'Time: {time} | {member} has left a server!')
 
 @client.event
 async def on_command_error(ctx, error):
+    cur = conn.cursor()
     now = datetime.now()
     time = now.strftime("%H:%M:%S")
-    log = open("log", "a")
-    log.write(f"\nError: {time} | MemberID: {ctx.message.author.id} caused: {error}")
-    log.close()
+    member = ctx.message.author
+    cur.execute("INSERT INTO logs(name, id, cause, time, unix_time) VALUES(?, ?, ?, ?, ?)", (member.name, member.id, str(error), time, int(now.timestamp()),))
     if isinstance(error, commands.CommandNotFound):
-        member = ctx.message.author.id
-        if os.path.exists(f"memlangs\{member}"):
-            languageCheck = open(f"memlangs\{member}", "r")
-            memlanguage = languageCheck.read()
-            if memlanguage == "en":
-                languageCheck.close()
-                await ctx.send("Command not found! Check to see if it was a typo!")
-            else:
-                if memlanguage == "ru":
-                    languageCheck.close()
-                    await ctx.send("Команда не найдена! Проверьте, может это опечатка!")
-                else:
-                    languageCheck.close()
-                    await ctx.send("Komanda nerasta! Patikrinkite ar tai buvo rašybos klaida!")
+        cur.execute(f"SELECT lang FROM users WHERE id = ?", (member.id,))
+        data = cur.fetchone()
+        if not data:
+            cur.execute(f"INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (member.name, member.id, 'en',))
+            cur.execute(f"SELECT lang FROM users WHERE id = ?", (member.id,))
+            data = cur.fetchone()
 
-        else:
-            languageCreate = open(f"memlangs\{member}", "w+")
-            languageCreate.write("en")
-            languageCreate.close()
-            now = datetime.now()
-            time = now.strftime("%H:%M:%S")
-            log = open("log", "a")
-            log.write(f"\nLog: {time} | MemberID: {ctx.message.author.id}: Member didn't have a language file, created one via NotACommand Error!")
-            log.close()
-            print(f"Rin Rin TempLog/CommandNotFound> {member} didn't have a lang file! Creating one.")
-            await ctx.send("Command not found! Check to see if it was a typo!")
+        await ctx.send(get_locale(data[0], "command_not_found"))
     else:
-            await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
+        await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
+    cur.close()
 
 @client.command()
 async def credits(ctx):
-    embed = discord.Embed(title="Rin Rin ❤ Credits", color=2367979)
-    embed.add_field(name="Bot Developer", value="Nobuyaki#4974")
-    embed.add_field(name="Russian Translation", value="Pineapple_Cookie (美波🌊 fan)#0373", inline=False)
-    embed.add_field(name="Lithuanian Translation", value="uwu#1337 and Nexurent#6458", inline=False)
-    embed.add_field(name="Lithuanian Translation Quality Checker", value="Nexurent#6458", inline=False)
+    message = ctx.message
+    author = message.author
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+    cur.close()
+
+    title = get_locale(data[0], "credits_command_title")
+    embed = discord.Embed(title=f"Rin Rin ❤ {title}", color=2367979)
+    embed.add_field(name=get_locale(data[0], "bot_developer"), value="Nobuyaki#4974", inline=True)
+    embed.add_field(name=get_locale(data[0], "bot_assistant_developer"), value="Pineapple_Cookie (美波🌊 fan)#0373", inline=True)
+    embed.add_field(name=get_locale(data[0], "russian_translation"), value="Pineapple_Cookie (美波🌊 fan)#0373", inline=False)
+    embed.add_field(name=get_locale(data[0], "lithuanian_translation"), value="uwu#1337 & Nexurent#6458", inline=True)
+    embed.add_field(name=get_locale(data[0], "lithuanian_quality_check"), value="Nexurent#6458", inline=True)
     await ctx.send(embed=embed)
 
 @client.command(aliases=['?','h'])
 async def help(ctx):
-    member = ctx.message.author.id
-    if os.path.exists(f"memlangs\{member}"):
-        languageCheck = open(f"memlangs\{member}", "r")
-        userlang = languageCheck.read()
-        if userlang == "en":
-            languageCheck.close()
-            embed = discord.Embed(title="Rin Rin ❤ Help", description=BotVersion, color=2367979)
-            embed.add_field(name="rr.help", value="Shows this message", inline=False)
-            embed.add_field(name="rr.rn (startnumber)(endnumber)", value="Gets a random number from start to end.", inline=False)
-            embed.add_field(name="rr.match (name) (partner)", value="Calculates compatibility with name and partner.", inline=False)
-            embed.add_field(name="rr.ping", value="Shows my ping!", inline=False)
-            embed.add_field(name="rr.info", value="Shows bot info!", inline=False)
-            embed.add_field(name="rr.lang (en/lt/ru)", value="Changes bot's language!")
-            embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
-            await ctx.send(embed=embed)
-        else:
-            if userlang == "ru":
-                languageCheck.close()
-                embed = discord.Embed(title="Rin Rin ❤ Помощь", description=BotVersion, color=2367979)
-                embed.add_field(name="rr.help", value="Показать это сообщение.", inline=False)
-                embed.add_field(name="rr.rn (старт) (стоп)", value="Получить случайное число от старт до стоп.", inline=False)
-                embed.add_field(name="rr.match (имя) (партнер)", value="Посчитать совместимость имени и партнера.", inline=False)
-                embed.add_field(name="rr.ping", value="Показать мой пинг!", inline=False)
-                embed.add_field(name="rr.info", value="Показать информацию о боте!", inline=False)
-                embed.add_field(name="rr.lang (en/lt/ru)", value="Changes bot's language!")
-                embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
-                await ctx.send(embed=embed)
-            else:
-                if userlang == "lt":
-                    languageCheck.close()
-                    embed = discord.Embed(title="Rin Rin❤ Pagalba", description=BotVersion, color=2367979)
-                    embed.add_field(name="rr.help", value="Parodo šitą žinutę", inline=False)
-                    embed.add_field(name="rr.rn (pradinisnumeris) (paskutinisnumeris)", value="Parodo generuota numerį nuo pradinio numerio iki paskutinio.", inline=False)
-                    embed.add_field(name="rr.match (vardas) (partneris)", value="Suskaičiuoja kiek vardas ir partneris tinka.", inline=False)
-                    embed.add_field(name="rr.ping", value="Parodo mano pingą!", inline=False)
-                    embed.add_field(name="rr.info", value="Parodo boto informaciją!", inline=False)
-                    embed.add_field(name="rr.lang (en/lt/ru)", value="Changes bot's language!")
-                    embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
-                    await ctx.send(embed=embed)
-    else:
-        languageCreate = open(f"memlangs\{member}", "w+")
-        languageCreate.write("en")
-        languageCreate.close()
-        now = datetime.now()
-        time = now.strftime("%H:%M:%S")
-        log = open("log", "a")
-        log.write(
-            f"\nLog: {time} | MemberID: {ctx.message.author.id}: Member didn't have a language file, created one via Help Command!")
-        log.close()
-        print(f"Rin Rin TempLog/CommandNotFound> {member} didn't have a lang file! Creating one.")
-        embed = discord.Embed(title="Rin Rin ❤ Help", description=BotVersion, color=2367979)
-        embed.add_field(name="rr.help", value="Shows this message", inline=False)
-        embed.add_field(name="rr.rn (startnumber)(endnumber)", value="Gets a random number from start to end.", inline=False)
-        embed.add_field(name="rr.match (name) (partner)", value="Calculates compatibility with name and partner.", inline=False)
-        embed.add_field(name="rr.ping", value="Shows my ping!", inline=False)
-        embed.add_field(name="rr.info", value="Shows bot info!", inline=False)
-        embed.add_field(name="rr.lang (en/lt/ru)", value="Changes bot's language!")
-        embed.add_field(name="rr.credits", value="Shows credits!", inline=False)
-        await ctx.send(embed=embed)
+    message = ctx.message
+    author = message.author
+
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+    cur.close()
+
+    userlang = data[0]
+
+    startnumber = get_locale(userlang, 'startnumber')
+    endnumber = get_locale(userlang, 'endnumber')
+    embed = discord.Embed(title="Rin Rin ❤ " + get_locale(userlang, "help_command_title"), description=BotVersion, color=2367979)
+    embed.add_field(name="rr.help", value=get_locale(userlang, "help_command_help"), inline=False)
+    embed.add_field(name=f"rr.rn ({startnumber}) ({endnumber})", value=get_locale(userlang, "help_command_rn"), inline=False)
+    embed.add_field(name="rr.match (name) (partner)", value=get_locale(userlang, "help_command_match"), inline=False)
+    embed.add_field(name="rr.ping", value=get_locale(userlang, "help_command_ping"), inline=False)
+    embed.add_field(name="rr.info", value=get_locale(userlang, "help_command_info"), inline=False)
+    embed.add_field(name="rr.lang (en/lt/ru)", value=get_locale(userlang, "help_command_lang"))
+    embed.add_field(name="rr.credits", value=get_locale(userlang, "help_command_credits"), inline=False)
+    await ctx.send(embed=embed)
 
 @client.command()
 async def info(ctx):
     embed = discord.Embed(title="Rin Rin ❤ Info", description="About me!", color=8993300)
     embed.add_field(name="Bot Author:", value="Nobuyaki#4974", inline=False)
-    embed.add_field(name="Bot Version:",value=BotVersion, inline=False)
+    embed.add_field(name="Bot Version:", value=BotVersion, inline=False)
     embed.add_field(name="Github Link:", value="https://github.com/liberation4you/rinrindiscord", inline=False)
-    embed.set_footer(text="Rin Rin ❤",icon_url="https://avatars1.githubusercontent.com/u/53136821?s=400&u=7877010f24ed4d436db5f1c6aa559fde428dcb31&v=4")
+    embed.set_footer(text="Rin Rin ❤", icon_url="https://avatars1.githubusercontent.com/u/53136821?s=400&u=7877010f24ed4d436db5f1c6aa559fde428dcb31&v=4")
     await ctx.send(embed=embed)
 
 @client.command()
-async def lang(ctx, language: str = None):
-    memberID = ctx.message.author.id
-    if language == "en":
-        file = open(f"memlangs\{memberID}", "w+")
-        file.write("en")
-        await ctx.send(f"Changed your language to **English**!")
-        file.close()
-    else:
-        if language == "ru":
-            file = open(f"memlangs\{memberID}", "w+")
-            file.write("ru")
-            await ctx.send(f"Ваш язык изменён на **Русский**!")
-            file.close()
-        else:
-            if language == "lt":
-                file = open(f"memlangs\{memberID}", "w+")
-                file.write("lt")
-                await ctx.send(f"Kalba pakeista į **Lietuvių**!")
-            else:
-                if language is None:
-                    if os.path.exists(f"memlangs\{memberID}"):
-                        file = open(f"memlangs\{memberID}", "r")
-                        currentlang = file.read()
-                        if currentlang == "en":
-                            await ctx.send("Your current language is **English**!")
-                            file.close()
-                        else:
-                            if currentlang == "ru":
-                                await ctx.send("Ваш текущий язык **Русский**!")
-                                file.close()
-                            else:
-                                if currentlang == "lt":
-                                    await ctx.send("Tavo dabartinė kalba yra **Lietuvių**!")
-                                    file.close()
-                    else:
-                        languageCreate = open(f"memlangs\{member}", "w+")
-                        languageCreate.write("en")
-                        languageCreate.close()
-                        now = datetime.now()
-                        time = now.strftime("%H:%M:%S")
-                        log = open("log", "a")
-                        log.write(f"\nLog: {time} | MemberID: {ctx.message.author.id}: Member didn't have a language file, created one via Language Command!")
-                        log.close()
-                        print(f"Rin Rin TempLog/FileNotFound> {member} didn't have a lang file! Creating one.")
-                        await ctx.send(f"You don't have a lang file so I made you one! Default language is **English**.\nType rr.lang again to see language.")
+async def lang(ctx, language: str="en"):
+    message = ctx.message
+    author = message.author
 
-                else:
-                    await ctx.send("Incorrect language! Type 'en' for English, 'ru' for Russian, and 'lt' for Lithuanian.")
+    language = language.lower()
+    if not language in all_languages.values():
+        language = all_languages.get(language, "en")
+
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, language,))
+    else:
+        cur.execute("UPDATE users SET lang = ? WHERE id = ?", (language, author.id,))
+        conn.commit()
+    cur.close()
+
+    await ctx.send(get_locale(language, "lang_response"))
+
 
 @client.command()
 async def ping(ctx):
