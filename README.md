@@ -2,7 +2,7 @@
 
 What I'm working on right now
 ----------
-Right now I'm trying to implement a localization system, although the way it's being implemented relies on me to add the languages to the code via files instead of using SQL as I find it way easier to use files.
+Right now I'm working on finishing the localization 100% and then I want to move onto the economy update.
 
 Developer Note:
 ----------
