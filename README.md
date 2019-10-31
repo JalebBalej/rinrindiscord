@@ -1,8 +1,4 @@
 # Rin Rin ❤
-Update: 10/27/19 @ 12:54pm Eastern.
-I'm going to be away from home for several days so development will stop temporarily.
-I wish I didn't have to do this as I love working on this bot, but personal matters came up.
-Localization Update 2 is the big update I wanted to push out today before I leave today.
 
 What I'm working on right now
 ----------
