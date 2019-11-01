@@ -2,7 +2,7 @@
 
 What I'm working on right now
 ----------
-Right now I'm working on finishing the localization 100% and then I want to move onto the economy update.
+Right now I'm waiting for my translation team to translate everything that's new into the bot, then I'm going to start on the economy system!
 
 Developer Note:
 ----------
