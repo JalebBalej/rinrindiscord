@@ -2,6 +2,7 @@ import random
 
 import discord
 from discord.ext import commands
+from discord.ext import tasks
 
 from datetime import datetime
 
@@ -12,7 +13,7 @@ from cogs.locale import *
 
 
 
-BotVersion = "v 10.31.19.17.4"
+BotVersion = "v 10.31.19.23.47"
 BotOwnerID = 171409282439446528
 
 conn = sql.connect("Database.db")
@@ -78,18 +79,37 @@ async def on_command_error(ctx, error):
     time = now.strftime("%H:%M:%S")
     member = ctx.message.author
     cur.execute("INSERT INTO logs(name, id, cause, time, unix_time) VALUES(?, ?, ?, ?, ?)", (member.name, member.id, str(error), time, int(now.timestamp()),))
-    if isinstance(error, commands.CommandNotFound):
+    cur.execute(f"SELECT lang FROM users WHERE id = ?", (member.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute(f"INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (member.name, member.id, 'en',))
         cur.execute(f"SELECT lang FROM users WHERE id = ?", (member.id,))
         data = cur.fetchone()
-        if not data:
-            cur.execute(f"INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (member.name, member.id, 'en',))
-            cur.execute(f"SELECT lang FROM users WHERE id = ?", (member.id,))
-            data = cur.fetchone()
-
+    if isinstance(error, commands.CommandNotFound):
         await ctx.send(get_locale(data[0], "command_not_found"))
-    else:
-        await ctx.send("Whoops! I ran into an error! Nobu-kun check my log please!")
     cur.close()
+
+@client.command()
+async def changestatus(ctx, *, status: str = None):
+    message = ctx.message
+    author = message.author
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+        cur.close()
+    if authorid == BotOwnerID:
+        if status is not None:
+            await ctx.send(f"Changing status to '**{status}**'.")
+            await client.change_presence(activity=discord.Game(f"{status}"))
+        else:
+            await ctx.send("Please enter a status!")
+    else:
+        await ctx.send(get_locale(data[0], "error_no_permission"))
+
 
 @client.command()
 async def credits(ctx):
@@ -117,6 +137,7 @@ async def credits(ctx):
 async def help(ctx):
     message = ctx.message
     author = message.author
+    authorid = author.id
 
     cur = conn.cursor()
     cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
@@ -140,13 +161,26 @@ async def help(ctx):
     embed.add_field(name="rr.lang (en/lt/ru)", value=get_locale(userlang, "help_command_lang"))
     embed.add_field(name="rr.credits", value=get_locale(userlang, "help_command_credits"), inline=False)
     await ctx.send(embed=embed)
+    if authorid == BotOwnerID:
+        owner = discord.Embed(title="Rin Rin ❤ Bot Owner Help")
+        owner.add_field(name="rr.changestatus (status)", value="Changes my playing status!", inline=False)
+        await ctx.send(embed=owner)
 
 @client.command()
 async def info(ctx):
-    embed = discord.Embed(title="Rin Rin ❤ Info", description="About me!", color=8993300)
-    embed.add_field(name="Bot Author:", value="Nobuyaki#4974", inline=False)
-    embed.add_field(name="Bot Version:", value=BotVersion, inline=False)
-    embed.add_field(name="Github Link:", value="https://github.com/liberation4you/rinrindiscord", inline=False)
+    author = ctx.message.author
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+    cur.close()
+    embed = discord.Embed(title="Rin Rin ❤ " + get_locale(data[0], "info_command_title"), color=8993300)
+    embed.add_field(name=get_locale(data[0], "bot_author") + ":", value="Nobuyaki#4974", inline=False)
+    embed.add_field(name=get_locale(data[0], "bot_version") + ":", value=BotVersion, inline=False)
+    embed.add_field(name=get_locale(data[0], "github_link") + ":", value="https://github.com/liberation4you/rinrindiscord", inline=False)
     embed.set_footer(text="Rin Rin ❤", icon_url="https://avatars1.githubusercontent.com/u/53136821?s=400&u=7877010f24ed4d436db5f1c6aa559fde428dcb31&v=4")
     await ctx.send(embed=embed)
 
@@ -174,32 +208,77 @@ async def lang(ctx, language: str="en"):
 
 @client.command()
 async def ping(ctx):
-    await ctx.send(f'Bot latency is {round(client.latency * 1000)}ms!')
+    author = ctx.message.author
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+    cur.close()
+    await ctx.send(get_locale(data[0], "ping_command") + f' {round(client.latency * 1000)}ms!')
 
 @client.command()
 async def rn(ctx, number1: int, number2: int):
+    author = ctx.message.author
     randnum = random.randint(number1, number2)
-    await ctx.send(f"Your random number is **{randnum}**.")
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+    cur.close()
+    await ctx.send(get_locale(data[0], "random_number_command") + f": **{randnum}**.")
 
 @rn.error
 async def rn_error(ctx, error):
+    author = ctx.message.author
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+    cur.close()
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("You need to enter two numbers!")
+        await ctx.send(get_locale(data[0], "random_number_error"))
 
 @client.command()
 async def match(ctx, name: str, partner: str):
+    author = ctx.message.author
     matchchance = random.randint(1, 100)
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+    cur.close()
     if matchchance == 100:
-        await ctx.send(f"{name} :two_hearts: {partner}\nCompatibilty is {matchchance}%!\n**Congratulations on getting 100% compatibilty {name} and {partner}!**")
+        await ctx.send(f"{name} :two_hearts: {partner}\n" + get_locale(data[0], "match_command_100comp") + f", {name} " + get_locale(data[0], "and") + f" {partner}!")
     else:
         if matchchance < 50:
-            await ctx.send(f"{name} :heart: {partner}\nCompatibilty: {matchchance}%\nBetter luck next time!")
+            await ctx.send(f"{name} :heart: {partner}\n" + get_locale(data[0], "match_command_compis") + f" {matchchance}." + get_locale(data[0], "match_command_gl"))
         else:
-            await ctx.send(f"{name} :heart: {partner}\nCompatibilty: {matchchance}%")
+            await ctx.send(f"{name} :heart: {partner}\n" + get_locale(data[0], "match_command_compis") + f" {matchchance}.")
 
 @match.error
 async def match_error(ctx, error):
+    author = ctx.message.author
+    cur = conn.cursor()
+    cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+    data = cur.fetchone()
+    if not data:
+        cur.execute("INSERT INTO users(name, id, lang) VALUES(?, ?, ?)", (author.name, author.id, 'en',))
+        cur.execute("SELECT lang FROM users WHERE id = ?", (author.id,))
+        data = cur.fetchone()
+    cur.close()
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send("Don't forget to specify two names!")
+        await ctx.send(get_locale(data[0], "match_command_error"))
 
 client.run(TOKEN)

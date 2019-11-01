@@ -98,5 +98,70 @@ locale = {
         "en": "Credits",
         "ru": "Авторы", # Translation probably isn't correct
         "lt": "Kreditai"
+    },
+    "error_no_permission": {
+        "en": "You do not have permission to use this command!",
+        "ru": None,
+        "lt": None
+    },
+    "info_command_title": {
+        "en": "Info",
+        "ru": None,
+        "lt": None
+    },
+    "bot_author": {
+        "en": "Bot Author",
+        "ru": None,
+        "lt": None
+    },
+    "bot_version": {
+        "en": "Bot Version",
+        "ru": None,
+        "lt": None
+    },
+    "github_link": {
+        "en": "Github Link",
+        "ru": None,
+        "lt": None
+    },
+    "ping_command": {
+        "en": "Bot Latency is",
+        "ru": None,
+        "lt": None
+    },
+    "random_number_command": {
+        "en": "Your random number",
+        "ru": None,
+        "lt": None
+    },
+    "random_number_error": {
+        "en": "You need to enter two numbers!",
+        "ru": None,
+        "lt": None
+    },
+    "match_command_compis": {
+        "en": "Compatibility is",
+        "ru": None,
+        "lt": None
+    },
+    "match_command_100comp": {
+        "en": "Congratulations on getting 100% compatibility",
+        "ru": None,
+        "lt": None
+    },
+    "and": {
+        "en": "and",
+        "ru": None,
+        "lt": None
+    },
+    "match_command_error": {
+        "en": "Don't forget to specify two names!",
+        "ru": None,
+        "lt": None
+    },
+    "match_command_gl": {
+        "en": "Better luck next time!",
+        "ru": None,
+        "lt": None
     }
 }

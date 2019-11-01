@@ -4,3 +4,4 @@ memlangs
 log
 Database.db
 cogs/__pycache__
+Database.db-journal
